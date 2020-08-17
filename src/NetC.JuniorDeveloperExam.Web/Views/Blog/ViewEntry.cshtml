@@ -1,0 +1,137 @@
+﻿@model NetC.JuniorDeveloperExam.Web.Models.BlogViewModel
+
+@{
+    ViewBag.Title = "View";
+}
+
+
+@section Scripts
+{
+    <script src="~/Scripts/Views/Blog/blogView.js"></script>
+}
+
+
+<div class="container">
+    <div class="row">
+
+        <!-- Blog post content -->
+        <div class="col-lg-12">
+
+            <!-- Title -->
+            <h1 class="mt-4">@Model.Title</h1>
+
+            <hr>
+
+            <!-- Date/Time -->
+            <p>Posted on @Model.FormatedDate</p>
+
+            <hr>
+
+            <!-- Preview Image -->
+            <img class="img-fluid rounded" src="@Model.Image" alt="@Model.Title">
+
+            <hr>
+            <!-- Post Content -->
+            @Html.Raw(Model.HtmlContent)
+            <hr>
+
+            <!-- Blog post comment form -->
+            <div class="card my-4">
+                <h5 class="card-header">Leave a Comment:</h5>
+                <div class="card-body">
+                    <form id="postComment"  action="/Blog/AddComment">
+
+                        <input type="hidden" name="BlogId" value="@Model.Id" />
+
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="Name">Name</label>
+                                <input type="text" class="form-control" id="Name" name="Name" placeholder="Name">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="EmailAddress">Email Address</label>
+                                <input type="email" class="form-control" id="EmailAddress" name="EmailAddress" placeholder="Email Address">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="Message">Message</label>
+                            <textarea id="Message" class="form-control" rows="3" name="Message"></textarea>
+                        </div>
+                        <button class="btn btn-primary">Submit</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Blog post comments -->
+
+            @foreach (var commentDepth in HtmlExtensionHelper.Tree(Model.Comments))
+            {
+
+
+
+                var depth = commentDepth.Item1;
+                var comment = commentDepth.Item2;
+                var classes = "";
+                if (depth ==0)
+                {
+                    <hr/>
+                }else
+                {
+                    classes = "comment-push-bar";
+                }
+
+
+                <div class="media ml-xl-@depth pl-xl-@depth mb-4 @classes " >
+                    <img class="d-flex mr-3 rounded-circle user-avatar" src="https://eu.ui-avatars.com/api/?name=@comment.Name" alt="Steven Barker">
+                    <div class="media-body ">
+                        <h5 class="mt-0">
+                        @comment.Name <small><em>(@comment.FormatedDate)</em></small></h5>
+                        @if(comment.IsReponse)
+                        {
+                            <h6>Responding to @Model.Comments.Find(p=>p.Id == comment.ParentId).Name</h6>
+                        }
+
+                        @comment.Message
+                        
+                        <br/>
+                        <div href="" class="blogReply btn btn-light">Reply</div>
+
+                        <div class="card my-4 blogReplyForm">
+                            <h5 class="card-header">Reply to @comment.Name</h5>
+                            <div class="card-body">
+
+                                   
+                                <form id="postComment" action="/Blog/AddComment">
+                                    <div class="form-row">
+                                        <input type="hidden" name="BlogId" value="@Model.Id" />
+                                        <input type="hidden" name="ParentReference" value="@comment.Id"/>
+
+
+                                        <div class="form-group col-md-6">
+                                            <label for="Name">Name</label>
+                                            <input type="text" class="form-control" id="Name" name="Name" placeholder="Name">
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <label for="EmailAddress">Email Address</label>
+                                            <input type="email" class="form-control" id="EmailAddress" name="EmailAddress" placeholder="Email Address">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="Message">Message</label>
+                                        <textarea id="Message" class="form-control" rows="3" name="Message"></textarea>
+                                    </div>
+                                    <button class="btn btn-primary">Submit</button>
+                                    <button class="btn btn-primary">Cancel</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+
+        </div>
+    </div>
+</div>
